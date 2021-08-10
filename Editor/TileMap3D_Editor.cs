@@ -7,7 +7,7 @@ using UnityEditor;
 public class TileMap3D_Editor : Editor
 {
     Dictionary<Vector2Int, int> yValues = new Dictionary<Vector2Int, int>();
-    Dictionary<Vector2Int, TileType> tileTypesAtPositions = new Dictionary<Vector2Int, TileType>();
+    Dictionary<Vector3Int, TileType> tileTypesAtPositions = new Dictionary<Vector3Int, TileType>();
     bool[,,] isFilled;
     public override void OnInspectorGUI()
     {
@@ -55,39 +55,59 @@ public class TileMap3D_Editor : Editor
         {
             for (int j = 0; j < tilemap.heightMap.height; j++)
             {
-                Vector2Int gridCord = new Vector2Int(i, j);
-                TileType t = tileTypesAtPositions[gridCord];
-                Vector3 position = new Vector3(i * tilemap.tileX, yValues[gridCord] * tilemap.tileHeight, j * tilemap.tileZ);
-                GameObject ob = null;
-                switch (t)
+                Vector2Int xz = new Vector2Int(i, j);
+                for (int k=0; k <= yValues[xz]; k++ )
                 {
-                    case TileType.Fill:
-                        ob = GameObject.Instantiate(tilemap.tileFill, position, Quaternion.identity);
-                        break;
-                    case TileType.CornerUpLeft:
-                        ob = GameObject.Instantiate(tilemap.tileCorner, position, Quaternion.identity);
-                        break;
-                    case TileType.CornerUpRight:
-                        ob = GameObject.Instantiate(tilemap.tileCorner, position, Quaternion.identity);
-                        ob.transform.localScale = new Vector3(-ob.transform.localScale.x, ob.transform.localScale.y, ob.transform.localScale.z);
-                        break;
-                    case TileType.CornerDownRight:
-                        ob = GameObject.Instantiate(tilemap.tileCorner, position, Quaternion.identity);
-                        ob.transform.localScale = new Vector3(ob.transform.localScale.x, ob.transform.localScale.y, -ob.transform.localScale.z);
-                        break;
-                    case TileType.CornerDownLeft:
-                        ob = GameObject.Instantiate(tilemap.tileCorner, position, Quaternion.identity);
-                        ob.transform.localScale = new Vector3(-ob.transform.localScale.x, ob.transform.localScale.y, -ob.transform.localScale.z);
-                        break;
-
+                    Vector3Int gridCord = new Vector3Int(i, k, j);
+                    if (tileTypesAtPositions.ContainsKey(gridCord))
+                    {
+                        TileType t = tileTypesAtPositions[gridCord];
+                        Vector3 position = new Vector3(i * tilemap.tileX, k * tilemap.tileHeight, j * tilemap.tileZ);
+                        GameObject obToInstatiate = null;
+                        Vector3 scale = new Vector3(1, 1, 1);
+                        Quaternion rotation = Quaternion.identity;
+                        switch (t)
+                        {
+                            case TileType.Fill:
+                                obToInstatiate = tilemap.tileFill;
+                                break;
+                            case TileType.CornerUpLeft:
+                                obToInstatiate = tilemap.tileCorner;
+                                break;
+                            case TileType.CornerUpRight:
+                                obToInstatiate = tilemap.tileCorner;
+                                scale = new Vector3(-1, 1, 1);
+                                break;
+                            case TileType.CornerDownRight:
+                                obToInstatiate = tilemap.tileCorner;
+                                scale = new Vector3(1, 1, -1);
+                                break;
+                            case TileType.CornerDownLeft:
+                                obToInstatiate = tilemap.tileCorner;
+                                scale = new Vector3(-1, 1, -1);
+                                break;
+                            case TileType.SideUp:
+                                obToInstatiate = tilemap.tileSide;
+                                scale = new Vector3(1, 1, 1);
+                                break;
+                            case TileType.SideDown:
+                                obToInstatiate = tilemap.tileSide;
+                                scale = new Vector3(1, 1, -1);
+                                break;
+                            case TileType.SideLeft:
+                                obToInstatiate = tilemap.tileSide;
+                                rotation = Quaternion.AngleAxis(-90, Vector3.up);
+                                break;
+                            case TileType.SideRight:
+                                obToInstatiate = tilemap.tileSide;
+                                rotation = Quaternion.AngleAxis(90, Vector3.up);
+                                break;
+                        }
+                        GameObject obj = GameObject.Instantiate(obToInstatiate, position, rotation);
+                        obj.transform.localScale = new Vector3(scale.x * obj.transform.localScale.x, scale.y * obj.transform.localScale.y, scale.z * obj.transform.localScale.z);
+                        obj.transform.parent = parent.transform;
+                    }
                 }
-                ob.transform.parent = parent.transform;
-                for (int k=0; k<yValues[gridCord]; k++)
-                {
-                    ob = GameObject.Instantiate(tilemap.tileFill, new Vector3(position.x, k*tilemap.tileHeight, position.z), Quaternion.identity);
-                    ob.transform.parent = parent.transform;
-                }
-               
             }
         }
     }
@@ -98,55 +118,77 @@ public class TileMap3D_Editor : Editor
         {
             for (int j = 0; j < tilemap.heightMap.height; j++)
             {
-                Vector2Int cord = new Vector2Int(i, j);
-                switch (t)
+                Vector2Int xz = new Vector2Int(i, j);
+                for (int k=0; k <= yValues[xz]; k++)
                 {
-                    case TileType.Fill:
-                        tileTypesAtPositions[cord] = TileType.Fill;
-                        break;
-                    case TileType.CornerUpLeft:
-                        if (CheckRuleForCell(cord, new int[] { 0, -1, 0, -1, 1, 0, 1, 0 }, tilemap ))
-                            tileTypesAtPositions[cord] = TileType.CornerUpLeft;
-                        break;
-                    case TileType.CornerUpRight:
-                        if (CheckRuleForCell(cord, new int[] { 0, -1, 0, 1, -1, 0, 1, 0 }, tilemap))
-                            tileTypesAtPositions[cord] = TileType.CornerUpRight;
-                        break;
-                    case TileType.CornerDownRight:
-                        if (CheckRuleForCell(cord, new int[] { 0, 1, 0, -1, 1, 0, -1, 0 }, tilemap))
-                            tileTypesAtPositions[cord] = TileType.CornerDownRight;
-                        break;
-                    case TileType.CornerDownLeft:
-                        if( CheckRuleForCell(cord, new int[]{ 0, 1, 0, 1, -1, 0, -1, 0 }, tilemap))
-                        tileTypesAtPositions[cord] = TileType.CornerDownLeft;
-                        break;
-
+                    Vector3Int cord = new Vector3Int(i, k ,j);
+                    switch (t)
+                    {
+                        case TileType.Fill:
+                            tileTypesAtPositions[cord] = TileType.Fill;
+                            break;
+                        case TileType.CornerUpLeft:
+                            if (CheckRuleForCell(cord, new int[] { 0, -1, 0, -1, 1, 0, 1, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.CornerUpLeft;
+                            break;
+                        case TileType.CornerUpRight:
+                            if (CheckRuleForCell(cord, new int[] { 0, -1, 0, 1, -1, 0, 1, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.CornerUpRight;
+                            break;
+                        case TileType.CornerDownRight:
+                            if (CheckRuleForCell(cord, new int[] { 0, 1, 0, -1, 1, 0, -1, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.CornerDownRight;
+                            break;
+                        case TileType.CornerDownLeft:
+                            if (CheckRuleForCell(cord, new int[] { 0, 1, 0, 1, -1, 0, -1, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.CornerDownLeft;
+                            break;
+                        case TileType.SideUp:
+                            if (CheckRuleForCell(cord, new int[] { 0, -1, 0, 1, 1, 0, 0, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.SideUp;
+                            break;
+                        case TileType.SideDown:
+                            if (CheckRuleForCell(cord, new int[] { 0, 0, 0, 1, 1, 0, -1, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.SideDown;
+                            break;
+                        case TileType.SideLeft:
+                            if(CheckRuleForCell(cord, new int[] { 0, 1, 0, -1, 0, 0, 1, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.SideLeft;
+                            break;
+                        case TileType.SideRight:
+                            if (CheckRuleForCell(cord, new int[] { 0, 1, 0, 0, -1, 0, 1, 0 }, tilemap))
+                                tileTypesAtPositions[cord] = TileType.SideRight;
+                            break;
+                    }
                 }
+                
+               
             }
         }
     }
 
-    bool CheckRuleForCell(Vector2Int cell, int[] rule, TileMap3D tilemap)
+    bool CheckRuleForCell(Vector3Int cell, int[] rule, TileMap3D tilemap)
     {
         //0|1|2
         //3|X|4
         //6|7|8
+        Vector2Int auxCell = new Vector2Int(cell.x, cell.z);
         Dictionary<int, Vector2Int> adyacentCells = new Dictionary<int, Vector2Int>();
-        adyacentCells.Add(0, cell + new Vector2Int(-1, 1));
-        adyacentCells.Add(1, cell + new Vector2Int(0, 1));
-        adyacentCells.Add(2, cell + new Vector2Int(1, 1));
-        adyacentCells.Add(3, cell + new Vector2Int(-1, 0));
-        adyacentCells.Add(4, cell + new Vector2Int(1, 0));
-        adyacentCells.Add(5, cell + new Vector2Int(-1, -1));
-        adyacentCells.Add(6, cell + new Vector2Int(0, -1));
-        adyacentCells.Add(7, cell + new Vector2Int(1, -1));
+        adyacentCells.Add(0, auxCell + new Vector2Int(-1, 1));
+        adyacentCells.Add(1, auxCell + new Vector2Int(0, 1));
+        adyacentCells.Add(2, auxCell + new Vector2Int(1, 1));
+        adyacentCells.Add(3, auxCell + new Vector2Int(-1, 0));
+        adyacentCells.Add(4, auxCell + new Vector2Int(1, 0));
+        adyacentCells.Add(5, auxCell + new Vector2Int(-1, -1));
+        adyacentCells.Add(6, auxCell + new Vector2Int(0, -1));
+        adyacentCells.Add(7, auxCell + new Vector2Int(1, -1));
         for(int i=0; i< 8; i++)
         {
             if(rule[i] != 0 && CordsInRange(adyacentCells[i], tilemap) )
             {
-                if (rule[i] == 1 && !isFilled[adyacentCells[i].x, yValues[cell], adyacentCells[i].y])
+                if (rule[i] == 1 && !isFilled[adyacentCells[i].x, cell.y , adyacentCells[i].y])
                     return false;
-                if (rule[i] == -1 && isFilled[adyacentCells[i].x, yValues[cell], adyacentCells[i].y])
+                if (rule[i] == -1 && isFilled[adyacentCells[i].x, cell.y , adyacentCells[i].y])
                     return false;
             }
         }
