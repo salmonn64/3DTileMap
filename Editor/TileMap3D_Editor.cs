@@ -28,7 +28,7 @@ public class TileMap3D_Editor : Editor
             {
                 for (int k = 0; k < tilemap.heightMap.height; k++)
                 {
-                    if (j <= yValues[new Vector2Int(i, k)])
+                    if (j < yValues[new Vector2Int(i, k)])
                         isFilled[i, j, k] = true;
                     else
                         isFilled[i, j, k] = false;
@@ -56,7 +56,7 @@ public class TileMap3D_Editor : Editor
             for (int j = 0; j < tilemap.heightMap.height; j++)
             {
                 Vector2Int xz = new Vector2Int(i, j);
-                for (int k=0; k <= yValues[xz]; k++ )
+                for (int k=0; k < yValues[xz]; k++ )
                 {
                     Vector3Int gridCord = new Vector3Int(i, k, j);
                     if (tileTypesAtPositions.ContainsKey(gridCord))
@@ -64,47 +64,46 @@ public class TileMap3D_Editor : Editor
                         TileType t = tileTypesAtPositions[gridCord];
                         Vector3 position = new Vector3(i * tilemap.tileX, k * tilemap.tileHeight, j * tilemap.tileZ);
                         GameObject obToInstatiate = null;
-                        Vector3 scale = new Vector3(1, 1, 1);
-                        Quaternion rotation = Quaternion.identity;
+                        Vector3 eulers = new Vector3(0, 0, 0);
+
                         switch (t)
                         {
                             case TileType.Fill:
                                 obToInstatiate = tilemap.tileFill;
                                 break;
                             case TileType.CornerUpLeft:
-                                obToInstatiate = tilemap.tileCorner;
+                                obToInstatiate = tilemap.tileCornerUpperLeft;
                                 break;
                             case TileType.CornerUpRight:
-                                obToInstatiate = tilemap.tileCorner;
-                                scale = new Vector3(-1, 1, 1);
+                                obToInstatiate = tilemap.tileCornerUpperLeft;
+                                eulers.Set(0, 90, 0);
                                 break;
                             case TileType.CornerDownRight:
-                                obToInstatiate = tilemap.tileCorner;
-                                scale = new Vector3(1, 1, -1);
+                                obToInstatiate = tilemap.tileCornerUpperLeft;
+                                eulers.Set(0, 270, 0);
                                 break;
                             case TileType.CornerDownLeft:
-                                obToInstatiate = tilemap.tileCorner;
-                                scale = new Vector3(-1, 1, -1);
+                                obToInstatiate = tilemap.tileCornerUpperLeft;
+                                eulers.Set(0,180, 0);
                                 break;
                             case TileType.SideUp:
-                                obToInstatiate = tilemap.tileSide;
-                                scale = new Vector3(1, 1, 1);
+                                obToInstatiate = tilemap.tileSideUp;
                                 break;
                             case TileType.SideDown:
-                                obToInstatiate = tilemap.tileSide;
-                                scale = new Vector3(1, 1, -1);
+                                obToInstatiate = tilemap.tileSideUp;
+                                eulers.Set(0, 180, 0); ;
                                 break;
                             case TileType.SideLeft:
-                                obToInstatiate = tilemap.tileSide;
-                                rotation = Quaternion.AngleAxis(-90, Vector3.up);
+                                obToInstatiate = tilemap.tileSideUp;
+                                eulers.Set(0, 270, 0);
                                 break;
                             case TileType.SideRight:
-                                obToInstatiate = tilemap.tileSide;
-                                rotation = Quaternion.AngleAxis(90, Vector3.up);
+                                obToInstatiate = tilemap.tileSideUp;
+                                eulers.Set(0, 90, 0);
                                 break;
                         }
-                        GameObject obj = GameObject.Instantiate(obToInstatiate, position, rotation);
-                        obj.transform.localScale = new Vector3(scale.x * obj.transform.localScale.x, scale.y * obj.transform.localScale.y, scale.z * obj.transform.localScale.z);
+                        GameObject obj = GameObject.Instantiate(obToInstatiate, position, obToInstatiate.transform.rotation);
+                        obj.transform.rotation = Quaternion.Euler(eulers) * obj.transform.rotation;
                         obj.transform.parent = parent.transform;
                     }
                 }
@@ -119,7 +118,7 @@ public class TileMap3D_Editor : Editor
             for (int j = 0; j < tilemap.heightMap.height; j++)
             {
                 Vector2Int xz = new Vector2Int(i, j);
-                for (int k=0; k <= yValues[xz]; k++)
+                for (int k=0; k < yValues[xz]; k++)
                 {
                     Vector3Int cord = new Vector3Int(i, k ,j);
                     switch (t)

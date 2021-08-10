@@ -8,10 +8,10 @@ public class TileMap3D : MonoBehaviour
     public Texture2D heightMap;
 
     [SerializeField]
-    public GameObject tileCorner;
+    public GameObject tileCornerUpperLeft;
 
     [SerializeField]
-    public GameObject tileSide;
+    public GameObject tileSideUp;
 
     [SerializeField]
     public GameObject tileFill;
