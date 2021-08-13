@@ -17,6 +17,12 @@ public class TileMap3D : MonoBehaviour
     public GameObject tileFill;
 
     [SerializeField]
+    public GameObject tileMiddleFill;
+
+    [SerializeField]
+    public GameObject tileMiddleCorner;
+
+    [SerializeField]
     public float tileX;
 
     [SerializeField]
@@ -28,25 +34,4 @@ public class TileMap3D : MonoBehaviour
     [SerializeField]
     public int numberOfFloors;
     
-
-    /*void Start()
-    {
-        int width = heightMap.width;
-        int height = heightMap.height;
-        for(int i=0; i< heightMap.width; i++)
-        {
-            for(int j=0; j<heightMap.height; j++)
-            {
-                float c = heightMap.GetPixel(i, j).r;
-                Debug.Log(c);
-                GameObject ob = GameObject.Instantiate(tileFill, new Vector3(i * tileX, tileHeight * GetFloor(c), j * tileY), Quaternion.identity);
-            }
-        }
-    }*/
-
-
-
-
-
-
 }
