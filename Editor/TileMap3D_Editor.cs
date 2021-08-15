@@ -21,8 +21,8 @@ public class TileMap3D_Editor : Editor
     void CreateMap(TileMap3D tilemap)
     {
         CalculateYValues(tilemap);
-        isFilled = new bool[tilemap.heightMap.width, tilemap.numberOfFloors, tilemap.heightMap.height];
-        tileInstatiated = new bool[tilemap.heightMap.width, tilemap.numberOfFloors, tilemap.heightMap.height];
+        isFilled = new bool[tilemap.heightMap.width, tilemap.numberOfFloors +1, tilemap.heightMap.height];
+        tileInstatiated = new bool[tilemap.heightMap.width, tilemap.numberOfFloors +1, tilemap.heightMap.height];
         for (int i = 0; i < tilemap.heightMap.width; i++)
         {
             for (int j = 0; j < tilemap.numberOfFloors; j++)
@@ -39,27 +39,31 @@ public class TileMap3D_Editor : Editor
             }
         }
 
-        FillWithObject(TileMap3DRule.RuleType.UpperCornerLeft, tilemap, tilemap.tileCornerUpperLeft);
-        FillWithObject(TileMap3DRule.RuleType.UpperSideTop, tilemap, tilemap.tileSideUp);
-        FillWithObject(TileMap3DRule.RuleType.Fill, tilemap, tilemap.tileFill);
+        GameObject map = new GameObject("map");
+        map.transform.parent = tilemap.transform;
+        GameObject[] tiles = { tilemap.tileMiddleCorner, tilemap.tileMiddleFill, tilemap.tileCornerUpperLeft, tilemap.tileSideUp, tilemap.tileFill };
+        for(int i=0; i< tiles.Length; i++)
+        {
+            if(tiles[i] !=null)
+                FillWithObject((TileMap3DRule.RuleType)i, tilemap, tiles[i], map);
+        }
         
-
     }
 
-    void FillWithObject(TileMap3DRule.RuleType type, TileMap3D tilemap, GameObject obj)
+    void FillWithObject(TileMap3DRule.RuleType type, TileMap3D tilemap, GameObject obj, GameObject parent)
     {
 
         TileMap3DRule r = new TileMap3DRule(type);
-        FillWithObject(r, tilemap, obj);
+        FillWithObject(r, tilemap, obj, parent);
     }
 
-    void FillWithObject(TileMap3DRule rule, TileMap3D tilemap, GameObject obj)
+    void FillWithObject(TileMap3DRule rule, TileMap3D tilemap, GameObject obj, GameObject parent)
     {
         Quaternion rot = Quaternion.identity;
         Vector3 eulers = new Vector3(0, 0, 0);
         for (int i = 0; i < 4; i++)
         {
-            CheckRuleAndInstatiate(rule, tilemap, obj, rot);
+            CheckRuleAndInstatiate(rule, tilemap, obj, rot, parent);
             rule.Rotate90();
             eulers += new Vector3(0, 90, 0);
             rot = Quaternion.Euler(eulers);
@@ -81,7 +85,7 @@ public class TileMap3D_Editor : Editor
         return true;
     }
 
-    void CheckRuleAndInstatiate(TileMap3DRule rule, TileMap3D tilemap, GameObject obj, Quaternion rotation)
+    void CheckRuleAndInstatiate(TileMap3DRule rule, TileMap3D tilemap, GameObject obj, Quaternion rotation,GameObject parent)
     {
         for(int i =0; i< tilemap.heightMap.width; i++)
         {
@@ -93,6 +97,7 @@ public class TileMap3D_Editor : Editor
                     {
                         GameObject aux = GameObject.Instantiate(obj, new Vector3(i * tilemap.tileX, k * tilemap.tileHeight, j * tilemap.tileZ), obj.transform.rotation);
                         aux.transform.rotation = rotation * aux.transform.rotation;
+                        aux.transform.parent = parent.transform; 
                         tileInstatiated[i, k, j] = true;
                     }
                 }

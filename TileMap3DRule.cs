@@ -14,7 +14,7 @@ public class TileMap3DRule
     public TileMap3DRule(RuleType type)
     {
         rule = new Dictionary<Vector3Int, int>();
-        if (type == RuleType.UpperSideTop)
+        if (type == RuleType.TopSideUp)
         {
             rule.Add(new Vector3Int(-1, 0, 0), 1);
             rule.Add(new Vector3Int(1, 0, 0), 1);
@@ -22,7 +22,7 @@ public class TileMap3DRule
             rule.Add(new Vector3Int(0, 0, -1), 1);
             
         }
-        if(type == RuleType.UpperCornerLeft)
+        if(type == RuleType.TopCornerUpLeft)
         {
             rule.Add(new Vector3Int(1, 0, 0), 1);
             rule.Add(new Vector3Int(0, 0, -1), 1);
@@ -30,6 +30,30 @@ public class TileMap3DRule
             rule.Add(new Vector3Int(0, 0, 1), -1);
             rule.Add(new Vector3Int(-1, 0, 0), -1);
         }
+        if(type == RuleType.MiddleCornerUpLeft)
+        {
+            rule.Add(new Vector3Int(1, 0, 0), 1);
+            rule.Add(new Vector3Int(0, 0, -1), 1);
+            rule.Add(new Vector3Int(-1, 0, 1), -1);
+            rule.Add(new Vector3Int(0, 0, 1), -1);
+            rule.Add(new Vector3Int(-1, 0, 0), -1);
+            rule.Add(new Vector3Int(0, 1, 0), 1);
+            rule.Add(new Vector3Int(1, 1, 0), 1);
+            rule.Add(new Vector3Int(0, 1, -1), 1);
+        }
+        if(type == RuleType.MiddleSideUp)
+        {
+            rule.Add(new Vector3Int(-1, 0, 0), 1);
+            rule.Add(new Vector3Int(1, 0, 0), 1);
+            rule.Add(new Vector3Int(0, 0, 1), -1);
+            rule.Add(new Vector3Int(0, 0, -1), 1);
+            rule.Add(new Vector3Int(-1, 1, 0), 1);
+            rule.Add(new Vector3Int(1, 1, 0), 1);
+            rule.Add(new Vector3Int(0, 1, 1), -1);
+            rule.Add(new Vector3Int(0, 1, -1), 1);
+            rule.Add(new Vector3Int(0, 1, 0), 1);
+        }
+        
     }
 
     public void Rotate90()
@@ -44,8 +68,10 @@ public class TileMap3DRule
 
     public enum RuleType
     {
-        UpperCornerLeft = 0,
-        UpperSideTop= 1,
-        Fill = 2
+        TopCornerUpLeft = 2,
+        TopSideUp= 3,
+        Fill = 4,
+        MiddleCornerUpLeft =0,
+        MiddleSideUp = 1
     }
 }
