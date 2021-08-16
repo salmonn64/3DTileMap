@@ -41,7 +41,7 @@ public class TileMap3D_Editor : Editor
 
         GameObject map = new GameObject("map");
         map.transform.parent = tilemap.transform;
-        GameObject[] tiles = { tilemap.tileMiddleCorner, tilemap.tileMiddleFill, tilemap.tileCornerUpperLeft, tilemap.tileSideUp, tilemap.tileFill };
+        GameObject[] tiles = { tilemap.tileMiddleCorner, tilemap.tileMiddleFill, tilemap.tileTopCorner, tilemap.tileTopSide, tilemap.tileTopInner, tilemap.tileTopFill };
         for(int i=0; i< tiles.Length; i++)
         {
             if(tiles[i] !=null)
