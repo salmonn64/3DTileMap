@@ -53,6 +53,12 @@ public class TileMap3DRule
             rule.Add(new Vector3Int(0, 1, -1), 1);
             rule.Add(new Vector3Int(0, 1, 0), 1);
         }
+        if(type == RuleType.TopInnerCorner)
+        {
+            rule.Add(new Vector3Int(0, 0, 1), 1);
+            rule.Add(new Vector3Int(1, 0, 0), 1);
+            rule.Add(new Vector3Int(1, 0, 1), -1);
+        }
         
     }
 
@@ -70,8 +76,9 @@ public class TileMap3DRule
     {
         TopCornerUpLeft = 2,
         TopSideUp= 3,
-        Fill = 4,
+        Fill = 5,
         MiddleCornerUpLeft =0,
-        MiddleSideUp = 1
+        MiddleSideUp = 1,
+        TopInnerCorner =4
     }
 }
