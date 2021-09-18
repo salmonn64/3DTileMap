@@ -1,5 +1,5 @@
 # 3DTileMap
- Tool for creating tile maps with height maps in unity.
+ Tool for creating tile maps with heightmaps in Unity.
  
  ![image](https://user-images.githubusercontent.com/50729585/133871984-f93c09e3-5d73-4fa6-97df-25de5900893c.png)
 
